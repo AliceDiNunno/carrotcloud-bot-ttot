@@ -1,7 +1,9 @@
 package main
 
-import TToT "github.com/AliceDiNunno/carrotcloud-bot-ttot"
+import TToT "github.com/AliceDiNunno/TwitterToTelegram"
 
 func main() {
-	TToT.Start()
+	TToT.OpenDatabase()
+	TToT.CreateTwitterClient()
+	TToT.SetupBot()
 }

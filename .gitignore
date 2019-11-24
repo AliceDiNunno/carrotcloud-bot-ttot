@@ -1,0 +1,10 @@
+*.db
+pkg/
+src/github.com/cenkalti/
+src/github.com/dghubble/
+src/github.com/google/
+src/github.com/jinzhu/
+src/github.com/mattn/
+src/github.com/pkg/
+src/gopkg.in/
+
