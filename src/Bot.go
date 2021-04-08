@@ -1,7 +1,7 @@
 package src
 
 import (
-	"github.com/AliceDiNunno/TwitterToTelegram/models"
+	"adinunno.fr/twitter-to-telegram/src/models"
 	"github.com/jinzhu/gorm"
 	"gopkg.in/tucnak/telebot.v2"
 	"os"
@@ -14,7 +14,7 @@ func BotMiddleware(upd *telebot.Update) bool {
 		return false
 	} else if strings.HasSuffix(strings.ToLower(upd.Message.Sender.Username), "bot") {
 		return false
-	} else if time.Now().Unix() - upd.Message.Unixtime > 10 {
+	} else if time.Now().Unix()-upd.Message.Unixtime > 10 {
 		return false
 	}
 	return true
@@ -49,12 +49,10 @@ func Init(bot *telebot.Bot, db *gorm.DB) {
 	})
 }
 
-
-
 func SetupBot() {
 	b, err := telebot.NewBot(telebot.Settings{
-		Token:  os.Getenv("telegram_bot_key"),
-		URL: "https://api.telegram.org",
+		Token: os.Getenv("telegram_bot_key"),
+		URL:   "https://api.telegram.org",
 	})
 
 	if err != nil {

@@ -1,9 +1,9 @@
 package main
 
-import TToT "github.com/AliceDiNunno/TwitterToTelegram"
+import "adinunno.fr/twitter-to-telegram/src"
 
 func main() {
-	TToT.OpenDatabase()
-	TToT.CreateTwitterClient()
-	TToT.SetupBot()
+	src.OpenDatabase()
+	src.CreateTwitterClient()
+	src.SetupBot()
 }

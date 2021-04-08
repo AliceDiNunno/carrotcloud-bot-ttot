@@ -1,8 +1,8 @@
 package src
 
 import (
+	"adinunno.fr/twitter-to-telegram/src/models"
 	"fmt"
-	"github.com/AliceDiNunno/TwitterToTelegram/models"
 	"github.com/jinzhu/gorm"
 	"gopkg.in/tucnak/telebot.v2"
 	"strings"
@@ -32,9 +32,9 @@ func whyCommand(bot *telebot.Bot, db *gorm.DB, m *telebot.Message) {
 
 func stopCommand(bot *telebot.Bot, db *gorm.DB, m *telebot.Message) {
 	instruction := models.TweetInstruction{
-		Date: m.Unixtime,
-		SenderId: m.Sender.ID,
-		GroupId: m.Chat.ID,
+		Date:        m.Unixtime,
+		SenderId:    m.Sender.ID,
+		GroupId:     m.Chat.ID,
 		Instruction: "stop", //todo: change to enum like
 	}
 
@@ -52,9 +52,9 @@ func limitCommand(bot *telebot.Bot, db *gorm.DB, m *telebot.Message) {
 			return
 		}*/
 		instruction := models.TweetInstruction{
-			Date: m.Unixtime,
-			SenderId: m.Sender.ID,
-			GroupId: m.Chat.ID,
+			Date:        m.Unixtime,
+			SenderId:    m.Sender.ID,
+			GroupId:     m.Chat.ID,
 			Instruction: message[1], //todo: change to enum like
 			//todo: check if limit is bigger than 0
 		}
@@ -100,12 +100,12 @@ func onText(bot *telebot.Bot, db *gorm.DB, m *telebot.Message) {
 
 		lastMsg := getLastMessage(lastMessages, m.Chat.ID, m.Sender)
 
-		if !(lastMsg.time - 10 <= m.Unixtime && lastMsg.time + 10 >= m.Unixtime) {
+		if !(lastMsg.time-10 <= m.Unixtime && lastMsg.time+10 >= m.Unixtime) {
 			lastMsg.message = ""
 		}
 
 		url := getTweetUrl(m)
-		messageContent := strings.TrimSpace(strings.Replace(m.Text, url,"", -1))
+		messageContent := strings.TrimSpace(strings.Replace(m.Text, url, "", -1))
 		lastMessageContent := lastMsg.message
 		userMessage := lastMessageContent
 
@@ -121,17 +121,17 @@ func onText(bot *telebot.Bot, db *gorm.DB, m *telebot.Message) {
 
 		if lastMsg.message != "" {
 			lastMessages = addLastMessage(lastMessages, telegramLastMessage{
-				time: time.Now().Unix(),
-				chatId: m.Chat.ID,
-				user: m.Sender,
+				time:    time.Now().Unix(),
+				chatId:  m.Chat.ID,
+				user:    m.Sender,
 				message: "",
 			})
 		}
 	} else {
 		lastMessages = addLastMessage(lastMessages, telegramLastMessage{
-			time: time.Now().Unix(),
-			chatId: m.Chat.ID,
-			user: m.Sender,
+			time:    time.Now().Unix(),
+			chatId:  m.Chat.ID,
+			user:    m.Sender,
 			message: m.Text,
 		})
 	}

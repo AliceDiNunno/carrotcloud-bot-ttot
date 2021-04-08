@@ -1,8 +1,8 @@
 package src
 
 import (
+	"adinunno.fr/twitter-to-telegram/src/models"
 	"fmt"
-	"github.com/AliceDiNunno/TwitterToTelegram/models"
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/jinzhu/gorm"
 	"gopkg.in/tucnak/telebot.v2"
@@ -10,7 +10,7 @@ import (
 )
 
 func writeHeader(sender *twitter.User, originalMessage *telebot.Message, lastMessage string) string {
-	header := "@"+originalMessage.Sender.Username + ":\n"
+	header := "@" + originalMessage.Sender.Username + ":\n"
 
 	if lastMessage != "" {
 		header = header + lastMessage + "\nPar "
@@ -32,9 +32,9 @@ func send(bot *telebot.Bot, tweets []twitter.Tweet, initialMessage *telebot.Mess
 			message = writeHeader(tweets[0].User, initialMessage, lastMessage) + "" + message
 			headerWritten = true
 		}
-		sentMsg, err := bot.Send(initialMessage.Chat, message, &telebot.SendOptions {
+		sentMsg, err := bot.Send(initialMessage.Chat, message, &telebot.SendOptions{
 			DisableWebPagePreview: !previewEnabled,
-			ReplyTo: messageToReplyTo,
+			ReplyTo:               messageToReplyTo,
 		})
 		if err != nil {
 			//Handle Error
@@ -57,7 +57,7 @@ func send(bot *telebot.Bot, tweets []twitter.Tweet, initialMessage *telebot.Mess
 			message = tweet.FullText
 			sendMessage()
 		} else {
-			if len(message + "\n\n" + tweet.FullText) > 4096 {
+			if len(message+"\n\n"+tweet.FullText) > 4096 {
 				sendMessage()
 			}
 			message = message + "\n\n" + tweet.FullText
@@ -74,7 +74,7 @@ func prepareToSend(db *gorm.DB, bot *telebot.Bot, m *telebot.Message, tweets []t
 	var instruction models.TweetInstruction
 	var limit int64
 	limit = -1
-	db.Where(&models.TweetInstruction{GroupId: m.Chat.ID, SenderId: m.Sender.ID}).Where("Date BETWEEN ? AND ?", m.Unixtime - 10, m.Unixtime + 10).First(&instruction)
+	db.Where(&models.TweetInstruction{GroupId: m.Chat.ID, SenderId: m.Sender.ID}).Where("Date BETWEEN ? AND ?", m.Unixtime-10, m.Unixtime+10).First(&instruction)
 	if instruction.Instruction != "" {
 		stop := false
 		if instruction.Instruction == "stop" {
@@ -109,4 +109,3 @@ func prepareToSend(db *gorm.DB, bot *telebot.Bot, m *telebot.Message, tweets []t
 	send(bot, tweets, m, lastMessage)
 	registerTweetStatus(db, m.ID, true, "Ok")
 }
-

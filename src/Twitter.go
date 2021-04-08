@@ -1,9 +1,10 @@
 package src
 
 import (
+	"adinunno.fr/twitter-to-telegram/src/models"
 	"fmt"
-	"github.com/AliceDiNunno/TwitterToTelegram/models"
 	"github.com/dghubble/oauth1"
+	"gopkg.in/tucnak/telebot.v2"
 	"os"
 	"regexp"
 	"sort"
@@ -13,15 +14,14 @@ import (
 
 	"github.com/dghubble/go-twitter/twitter"
 	_ "github.com/mattn/go-sqlite3"
-	"gopkg.in/tucnak/telebot.v2"
 )
 
 var twitterClient *twitter.Client
 
 type telegramLastMessage struct {
-	time int64
-	chatId int64
-	user *telebot.User
+	time    int64
+	chatId  int64
+	user    *telebot.User
 	message string
 }
 
@@ -29,7 +29,7 @@ func getTweetUrl(m *telebot.Message) string {
 	r := regexp.MustCompile(`https:\/\/twitter.com\/([a-zA-Z0-9_]*)\/status\/([0-9]*)`)
 	match := r.FindStringSubmatch(m.Text)
 	if len(match) > 2 {
-		return "https://twitter.com/"+match[1]+"/status/"+match[2]
+		return "https://twitter.com/" + match[1] + "/status/" + match[2]
 	}
 	return ""
 }
@@ -44,7 +44,7 @@ func fetchTweets(db *gorm.DB, m *telebot.Message, client *twitter.Client, id int
 
 	if err != nil {
 		print(err.Error())
-		registerTweetStatus(db, m.ID, false, "Erreur twitter: " + err.Error())
+		registerTweetStatus(db, m.ID, false, "Erreur twitter: "+err.Error())
 		return []twitter.Tweet{}
 	}
 
@@ -64,12 +64,12 @@ func fetchTweets(db *gorm.DB, m *telebot.Message, client *twitter.Client, id int
 
 	tweetList = append(tweetList, *tweet)
 
-	searchTweetParams := &twitter.SearchTweetParams {
-		Query:     "from:"+tweet.User.ScreenName + " to:"+tweet.User.ScreenName,
-		SinceID:	tweet.ID,
+	searchTweetParams := &twitter.SearchTweetParams{
+		Query:      "from:" + tweet.User.ScreenName + " to:" + tweet.User.ScreenName,
+		SinceID:    tweet.ID,
 		ResultType: "recent",
-		TweetMode: "extended",
-		Count:     1000,
+		TweetMode:  "extended",
+		Count:      1000,
 	}
 	tweets, _, _ := client.Search.Tweets(searchTweetParams)
 
@@ -91,17 +91,15 @@ func fetchTweets(db *gorm.DB, m *telebot.Message, client *twitter.Client, id int
 	return tweetList
 }
 
-
 func registerTweetStatus(db *gorm.DB, id int, success bool, reason string) {
 	print("Tweet status: " + reason)
 
 	db.Save(&models.TweetRegistered{
-		MessageId: id,
+		MessageId:    id,
 		FetchSuccess: success,
-		FetchStatus: reason,
+		FetchStatus:  reason,
 	})
 }
-
 
 func CreateTwitterClient() {
 	consumerKey := os.Getenv("twitter_consumer_key")
