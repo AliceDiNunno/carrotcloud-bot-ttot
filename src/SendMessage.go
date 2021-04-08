@@ -1,7 +1,7 @@
 package src
 
 import (
-	"adinunno.fr/twitter-to-telegram/src/models"
+	"adinunno.fr/twitter-to-telegram/src/adapters/persistence/postgres"
 	"fmt"
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/jinzhu/gorm"
@@ -71,10 +71,10 @@ func send(bot *telebot.Bot, tweets []twitter.Tweet, initialMessage *telebot.Mess
 }
 
 func prepareToSend(db *gorm.DB, bot *telebot.Bot, m *telebot.Message, tweets []twitter.Tweet, lastMessage string) {
-	var instruction models.TweetInstruction
+	var instruction postgres.TweetInstruction
 	var limit int64
 	limit = -1
-	db.Where(&models.TweetInstruction{GroupId: m.Chat.ID, SenderId: m.Sender.ID}).Where("Date BETWEEN ? AND ?", m.Unixtime-10, m.Unixtime+10).First(&instruction)
+	db.Where(&postgres.TweetInstruction{GroupId: m.Chat.ID, SenderId: m.Sender.ID}).Where("Date BETWEEN ? AND ?", m.Unixtime-10, m.Unixtime+10).First(&instruction)
 	if instruction.Instruction != "" {
 		stop := false
 		if instruction.Instruction == "stop" {

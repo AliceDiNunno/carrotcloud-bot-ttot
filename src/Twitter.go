@@ -1,11 +1,11 @@
 package src
 
 import (
-	"adinunno.fr/twitter-to-telegram/src/models"
+	"adinunno.fr/twitter-to-telegram/src/adapters/persistence/postgres"
+	"adinunno.fr/twitter-to-telegram/src/infra"
 	"fmt"
 	"github.com/dghubble/oauth1"
 	"gopkg.in/tucnak/telebot.v2"
-	"os"
 	"regexp"
 	"sort"
 	"time"
@@ -94,18 +94,18 @@ func fetchTweets(db *gorm.DB, m *telebot.Message, client *twitter.Client, id int
 func registerTweetStatus(db *gorm.DB, id int, success bool, reason string) {
 	print("Tweet status: " + reason)
 
-	db.Save(&models.TweetRegistered{
+	db.Save(&postgres.TweetRegistered{
 		MessageId:    id,
 		FetchSuccess: success,
 		FetchStatus:  reason,
 	})
 }
 
-func CreateTwitterClient() {
-	consumerKey := os.Getenv("twitter_consumer_key")
-	consumerSecret := os.Getenv("twitter_consumer_secret")
-	accessToken := os.Getenv("twitter_access_token")
-	accessSecret := os.Getenv("twitter_access_secret")
+func CreateTwitterClient(conf infra.TwitterConf) {
+	consumerKey := conf.ApiConsumerKey
+	consumerSecret := conf.ApiConsumerSecret
+	accessToken := conf.UserAccesToken
+	accessSecret := conf.UserAccessSecret
 
 	config := oauth1.NewConfig(consumerKey, consumerSecret)
 	token := oauth1.NewToken(accessToken, accessSecret)

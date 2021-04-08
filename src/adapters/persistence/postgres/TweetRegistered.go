@@ -1,4 +1,4 @@
-package models
+package postgres
 
 import (
 	"github.com/jinzhu/gorm"
@@ -6,8 +6,7 @@ import (
 
 type TweetRegistered struct {
 	gorm.Model
-	MessageId int
+	MessageId    int
 	FetchSuccess bool
-	FetchStatus string
+	FetchStatus  string
 }
-

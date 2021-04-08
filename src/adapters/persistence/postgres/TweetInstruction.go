@@ -1,4 +1,4 @@
-package models
+package postgres
 
 import (
 	"github.com/jinzhu/gorm"
@@ -6,8 +6,8 @@ import (
 
 type TweetInstruction struct {
 	gorm.Model
-	SenderId int
-	GroupId int64
-	Date int64
+	SenderId    int
+	GroupId     int64
+	Date        int64
 	Instruction string
 }

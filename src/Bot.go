@@ -1,10 +1,10 @@
 package src
 
 import (
-	"adinunno.fr/twitter-to-telegram/src/models"
+	"adinunno.fr/twitter-to-telegram/src/adapters/persistence/postgres"
+	"adinunno.fr/twitter-to-telegram/src/infra"
 	"github.com/jinzhu/gorm"
 	"gopkg.in/tucnak/telebot.v2"
-	"os"
 	"strings"
 	"time"
 )
@@ -21,11 +21,11 @@ func BotMiddleware(upd *telebot.Update) bool {
 }
 
 func Init(bot *telebot.Bot, db *gorm.DB) {
-	if (!db.HasTable(&models.TweetInstruction{})) {
-		db.CreateTable(&models.TweetInstruction{})
+	if (!db.HasTable(&postgres.TweetInstruction{})) {
+		db.CreateTable(&postgres.TweetInstruction{})
 	}
-	if (!db.HasTable(&models.TweetRegistered{})) {
-		db.CreateTable(&models.TweetRegistered{})
+	if (!db.HasTable(&postgres.TweetRegistered{})) {
+		db.CreateTable(&postgres.TweetRegistered{})
 	}
 
 	bot.Handle("/why", func(m *telebot.Message) {
@@ -49,9 +49,9 @@ func Init(bot *telebot.Bot, db *gorm.DB) {
 	})
 }
 
-func SetupBot() {
+func SetupBot(conf infra.TelegramConf) {
 	b, err := telebot.NewBot(telebot.Settings{
-		Token: os.Getenv("telegram_bot_key"),
+		Token: conf.BotToken,
 		URL:   "https://api.telegram.org",
 	})
 

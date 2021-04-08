@@ -1,7 +1,7 @@
 package src
 
 import (
-	"adinunno.fr/twitter-to-telegram/src/models"
+	"adinunno.fr/twitter-to-telegram/src/adapters/persistence/postgres"
 	"fmt"
 	"github.com/jinzhu/gorm"
 	"gopkg.in/tucnak/telebot.v2"
@@ -17,8 +17,8 @@ func whyCommand(bot *telebot.Bot, db *gorm.DB, m *telebot.Message) {
 		return
 	}
 	id := m.ReplyTo.ID
-	var tweet models.TweetRegistered
-	if db.Where(&models.TweetRegistered{MessageId: id}).First(&tweet).RecordNotFound() {
+	var tweet postgres.TweetRegistered
+	if db.Where(&postgres.TweetRegistered{MessageId: id}).First(&tweet).RecordNotFound() {
 		_, _ = bot.Send(m.Chat, "Aucun enregistrement trouvé pour ce message")
 		return
 	}
@@ -31,7 +31,7 @@ func whyCommand(bot *telebot.Bot, db *gorm.DB, m *telebot.Message) {
 }
 
 func stopCommand(bot *telebot.Bot, db *gorm.DB, m *telebot.Message) {
-	instruction := models.TweetInstruction{
+	instruction := postgres.TweetInstruction{
 		Date:        m.Unixtime,
 		SenderId:    m.Sender.ID,
 		GroupId:     m.Chat.ID,
@@ -51,7 +51,7 @@ func limitCommand(bot *telebot.Bot, db *gorm.DB, m *telebot.Message) {
 			bot.Send(m.Chat, "Impossible de récuperer la limite")
 			return
 		}*/
-		instruction := models.TweetInstruction{
+		instruction := postgres.TweetInstruction{
 			Date:        m.Unixtime,
 			SenderId:    m.Sender.ID,
 			GroupId:     m.Chat.ID,
