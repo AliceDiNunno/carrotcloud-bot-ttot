@@ -1,4 +1,4 @@
-package TToT
+package src
 
 func contains(s []string, e string) bool {
 	for _, a := range s {

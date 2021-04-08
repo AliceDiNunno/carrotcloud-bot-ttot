@@ -1,4 +1,4 @@
-package TToT
+package src
 
 import (
 	"github.com/AliceDiNunno/TwitterToTelegram/models"
