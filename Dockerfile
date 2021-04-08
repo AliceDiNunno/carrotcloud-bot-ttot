@@ -1,13 +1,19 @@
-FROM golang
+# Multi-stage layout
+FROM golang:1.14
 
-MAINTAINER Alice Di Nunno
+#ENV GO111MODULE=on
 
-ADD . ./
+WORKDIR /app
 
-RUN ls
+COPY go.mod .
+COPY go.sum .
 
-RUN make
+RUN go mod download
 
-RUN go build -o main ./cmd
+COPY . .
 
-CMD ["./main"]
+
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build ./cmd/main.go
+
+WORKDIR /app
+ENTRYPOINT ["./main"]
