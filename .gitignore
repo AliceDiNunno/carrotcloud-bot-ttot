@@ -8,3 +8,5 @@ src/github.com/mattn/
 src/github.com/pkg/
 src/gopkg.in/
 
+/.idea
+/.env

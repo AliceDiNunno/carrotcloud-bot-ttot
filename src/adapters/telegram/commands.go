@@ -5,6 +5,8 @@ import (
 	"adinunno.fr/twitter-to-telegram/src/core/usecases"
 	"errors"
 	"gopkg.in/tucnak/telebot.v2"
+	"strconv"
+	"strings"
 )
 
 type RoutesHandler struct {
@@ -13,52 +15,67 @@ type RoutesHandler struct {
 }
 
 func (r RoutesHandler) WhyCommand(m *telebot.Message) (domain.MessageList, error) {
-	/*	if m.ReplyTo == nil {
-			_, err := r.bot.Send(m.Chat, "Merci de répondre à un message contenant un tweet")
+	if m.ReplyTo == nil {
+		return domain.MessageList{
+			{
+				Recipient: domain.Chat(m.Chat.ID),
+				Text:      "Please use this command while replying",
+			},
+		}, errors.New("command was used without replying to a message")
+	}
 
-			if err != nil {
-				println("Unable to send meesage:", err.Error())
-			}
+	reply, err := r.usecases.WhyTweetNotWorking(domain.Status{
+		Recipient: domain.Chat(m.Chat.ID),
+		Sender:    domain.User(m.ReplyTo.ID), //TODO: this should not be sender but messageId or smthg
+	})
 
-			return
-		}
-		id := m.ReplyTo.ID
-		var tweet sqlite.Tweet
-		if db.Where(&sqlite.Tweet{MessageId: id}).First(&tweet).RecordNotFound() {
-			_, err := r.bot.Send(m.Chat, "Aucun enregistrement trouvé pour ce message")
+	if err != nil {
+		return nil, err
+	}
 
-			if err != nil {
-				println("Unable to send meesage:", err.Error())
-			}
+	return domain.MessageList{
+		reply,
+	}, nil
+}
 
-			return
-		}
-
-		status := "échec"
-		if tweet.FetchSuccess {
-			status = "réussite"
-		}
-		_, err := r.bot.Send(m.Chat, "Détail: "+tweet.FetchStatus+" ("+status+")")
+func (r RoutesHandler) LimitCommand(m *telebot.Message) (domain.MessageList, error) {
+	arguments := strings.Split(m.Text, " ")
+	if len(arguments) > 1 {
+		result, err := strconv.Atoi(arguments[1])
 
 		if err != nil {
-			println("Unable to send meesage:", err.Error())
+			return domain.MessageList{
+				{
+					Recipient: domain.Chat(m.Chat.ID),
+					Text:      "Please use /limit with a number. For example /limit 2",
+				},
+			}, errors.New("/limit used with an invalid argument")
 		}
-	*/
-	r.usecases.WhyTweetNotWorking()
-	return domain.MessageList{
-		{
-			RecipientId: m.Chat.ID,
-			Text:        "This is not implemented",
-		},
-	}, errors.New("waiting for implementation")
+
+		err = r.usecases.LimitNextThread(m.Unixtime, domain.Chat(m.Chat.ID), domain.User(m.Sender.ID), result)
+
+		return nil, err //Command is silently processed if no err
+	} else {
+		return domain.MessageList{
+			{
+				Recipient: domain.Chat(m.Chat.ID),
+				Text:      "Please use /limit with a number. For example /limit 2",
+			},
+		}, errors.New("/limit used without arguments")
+	}
+}
+
+func (r RoutesHandler) StopCommand(m *telebot.Message) (domain.MessageList, error) {
+	err := r.usecases.StopNextThread(m.Unixtime, domain.Chat(m.Chat.ID), domain.User(m.Sender.ID))
+	return nil, err //Command is silently processed if no err
 }
 
 func (r RoutesHandler) RetryCommand(m *telebot.Message) (domain.MessageList, error) {
 	if m.ReplyTo == nil {
 		return domain.MessageList{
 			{
-				RecipientId: m.Chat.ID,
-				Text:        "Please use this command while replying",
+				Recipient: domain.Chat(m.Chat.ID),
+				Text:      "Please use this command while replying",
 			},
 		}, errors.New("command was used without replying to a message")
 	}
@@ -73,25 +90,11 @@ func (r RoutesHandler) NewMessage(m *telebot.Message) (domain.MessageList, error
 		return nil, err
 	}
 
-	tweets, err := r.usecases.NewMessageReceived(m.Text, id)
+	messages, err := r.usecases.NewMessageReceived(m.Unixtime, domain.Chat(m.Chat.ID), domain.User(m.Sender.ID), id)
 
 	if err != nil {
 		return nil, err
 	}
 
-	var messages domain.MessageList
-	for _, tweet := range tweets {
-		messages = append(messages, &domain.Message{
-			RecipientId: m.Chat.ID,
-			Text:        tweet.Message,
-		})
-	}
 	return messages, nil
-}
-
-func NewCommandHandler(bot *telebot.Bot, usecasesHandler usecases.Usecases) RoutesHandler {
-	return RoutesHandler{
-		bot:      bot,
-		usecases: usecasesHandler,
-	}
 }

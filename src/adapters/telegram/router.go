@@ -2,6 +2,7 @@ package telegram
 
 import (
 	"adinunno.fr/twitter-to-telegram/src/core/domain"
+	"adinunno.fr/twitter-to-telegram/src/core/usecases"
 	"gopkg.in/tucnak/telebot.v2"
 )
 
@@ -11,11 +12,18 @@ func (r RoutesHandler) handle(bot *telebot.Bot, endpoint string, handler endpoin
 	bot.Handle(endpoint, func(message *telebot.Message) {
 		messages, err := handler(message)
 
+		var details = ""
+
 		if err != nil {
-
-		} else {
-
+			details = err.Error()
 		}
+
+		r.usecases.RegisterThreadStatus(&domain.Status{
+			Recipient:          domain.Chat(message.Chat.ID),
+			Sender:             domain.User(message.ID),
+			DidSucceed:         err != nil,
+			AdditionnalDetails: details,
+		})
 
 		messages = r.usecases.FormatMessages(messages)
 		r.reply(messages)
@@ -25,7 +33,14 @@ func (r RoutesHandler) handle(bot *telebot.Bot, endpoint string, handler endpoin
 func (r RoutesHandler) SetCommands() {
 	r.handle(r.bot, "/why", r.WhyCommand)
 	r.handle(r.bot, "/retry", r.RetryCommand)
-	r.handle(r.bot, "/limit", r.WhyCommand)
-	r.handle(r.bot, "/stop", r.WhyCommand)
+	r.handle(r.bot, "/limit", r.LimitCommand)
+	r.handle(r.bot, "/stop", r.StopCommand)
 	r.handle(r.bot, telebot.OnText, r.NewMessage)
+}
+
+func NewCommandHandler(bot *telebot.Bot, usecasesHandler usecases.Usecases) RoutesHandler {
+	return RoutesHandler{
+		bot:      bot,
+		usecases: usecasesHandler,
+	}
 }
