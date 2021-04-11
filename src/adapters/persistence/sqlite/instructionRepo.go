@@ -4,7 +4,11 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type TweetInstruction struct {
+type InstructionRepo struct {
+	Db *gorm.DB
+}
+
+type Instruction struct {
 	gorm.Model
 	SenderId    int
 	GroupId     int64
