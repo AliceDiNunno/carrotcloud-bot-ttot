@@ -57,8 +57,7 @@ func (i interactor) NewMessageReceived(date int64, chat domain.Chat, sender doma
 	return messages, nil
 }
 
-//Todo: I should rename that
-func (i interactor) WhyTweetNotWorking(status domain.Status) (*domain.Message, error) {
+func (i interactor) FindTweetStatus(status domain.Status) (*domain.Message, error) {
 	dbstatus := i.statusRepo.GetStatus(&status)
 
 	//TODO: this is the values returned when no entry was found. UPDATE to gorm2 required and fetch errors

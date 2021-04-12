@@ -24,7 +24,7 @@ func (r RoutesHandler) WhyCommand(m *telebot.Message) (domain.MessageList, error
 		}, errors.New("command was used without replying to a message")
 	}
 
-	reply, err := r.usecases.WhyTweetNotWorking(domain.Status{
+	reply, err := r.usecases.FindTweetStatus(domain.Status{
 		Recipient: domain.Chat(m.Chat.ID),
 		Sender:    domain.User(m.ReplyTo.ID), //TODO: this should not be sender but messageId or smthg
 	})

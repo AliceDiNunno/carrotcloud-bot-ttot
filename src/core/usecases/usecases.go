@@ -8,7 +8,7 @@ type TwitterGateway interface {
 }
 
 type Usecases interface {
-	WhyTweetNotWorking(status domain.Status) (*domain.Message, error)
+	FindTweetStatus(status domain.Status) (*domain.Message, error)
 	NewMessageReceived(date int64, chat domain.Chat, sender domain.User, id domain.TweetId) (domain.MessageList, error)
 	LimitNextThread(date int64, chat domain.Chat, sender domain.User, limit int) error
 	StopNextThread(date int64, chat domain.Chat, sender domain.User) error
