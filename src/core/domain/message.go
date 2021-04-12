@@ -1,8 +1,12 @@
 package domain
 
-//todo: create a struct that has Chat and User
 type Chat int64
 type User int
+
+type MessageMembership struct {
+	Conversation Chat
+	Sender       User
+}
 
 type Message struct {
 	Recipient Chat
