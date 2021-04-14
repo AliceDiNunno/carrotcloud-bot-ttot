@@ -1,4 +1,4 @@
-package infra
+package config
 
 type TwitterConf struct {
 	ApiConsumerKey    string
