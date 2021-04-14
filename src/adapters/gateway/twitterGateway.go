@@ -1,9 +1,9 @@
 package gateway
 
 import (
+	"adinunno.fr/twitter-to-telegram/src/config"
 	"adinunno.fr/twitter-to-telegram/src/core/domain"
 	"adinunno.fr/twitter-to-telegram/src/core/usecases"
-	"adinunno.fr/twitter-to-telegram/src/infra"
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
 	"sort"
@@ -81,7 +81,7 @@ func (t twitterGateway) GetFullThread(tweet *domain.Tweet) (domain.TweetList, er
 	return replies, nil
 }
 
-func NewTwitterGateway(conf infra.TwitterConf) (usecases.TwitterGateway, error) {
+func NewTwitterGateway(conf config.TwitterConf) (usecases.TwitterGateway, error) {
 	consumerKey := conf.ApiConsumerKey
 	consumerSecret := conf.ApiConsumerSecret
 	accessToken := conf.UserAccesToken

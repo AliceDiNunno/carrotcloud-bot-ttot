@@ -18,15 +18,19 @@ func (r RoutesHandler) WhyCommand(m *telebot.Message) (domain.MessageList, error
 	if m.ReplyTo == nil {
 		return domain.MessageList{
 			{
-				Recipient: domain.Chat(m.Chat.ID),
-				Text:      "Please use this command while replying",
+				Metadata: domain.MessageMetadata{
+					Conversation: domain.Chat(m.Chat.ID),
+				},
+
+				Text: "Please use this command while replying",
 			},
 		}, errors.New("command was used without replying to a message")
 	}
 
-	reply, err := r.usecases.FindTweetStatus(domain.Status{
-		Recipient: domain.Chat(m.Chat.ID),
-		Sender:    domain.User(m.ReplyTo.ID), //TODO: this should not be sender but messageId or smthg
+	reply, err := r.usecases.FindTweetStatus(domain.MessageMetadata{
+		Id:           domain.ID(m.ReplyTo.ID),
+		Conversation: domain.Chat(m.Chat.ID),
+		Sender:       domain.User(m.Sender.ID),
 	})
 
 	if err != nil {
@@ -46,8 +50,11 @@ func (r RoutesHandler) LimitCommand(m *telebot.Message) (domain.MessageList, err
 		if err != nil {
 			return domain.MessageList{
 				{
-					Recipient: domain.Chat(m.Chat.ID),
-					Text:      "Please use /limit with a number. For example /limit 2",
+					Metadata: domain.MessageMetadata{
+						Conversation: domain.Chat(m.Chat.ID),
+					},
+
+					Text: "Please use /limit with a number. For example /limit 2",
 				},
 			}, errors.New("/limit used with an invalid argument")
 		}
@@ -58,8 +65,11 @@ func (r RoutesHandler) LimitCommand(m *telebot.Message) (domain.MessageList, err
 	} else {
 		return domain.MessageList{
 			{
-				Recipient: domain.Chat(m.Chat.ID),
-				Text:      "Please use /limit with a number. For example /limit 2",
+				Metadata: domain.MessageMetadata{
+					Conversation: domain.Chat(m.Chat.ID),
+				},
+
+				Text: "Please use /limit with a number. For example /limit 2",
 			},
 		}, errors.New("/limit used without arguments")
 	}
@@ -74,8 +84,11 @@ func (r RoutesHandler) RetryCommand(m *telebot.Message) (domain.MessageList, err
 	if m.ReplyTo == nil {
 		return domain.MessageList{
 			{
-				Recipient: domain.Chat(m.Chat.ID),
-				Text:      "Please use this command while replying",
+				Metadata: domain.MessageMetadata{
+					Conversation: domain.Chat(m.Chat.ID),
+				},
+
+				Text: "Please use this command while replying",
 			},
 		}, errors.New("command was used without replying to a message")
 	}

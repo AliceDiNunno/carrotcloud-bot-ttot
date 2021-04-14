@@ -1,8 +1,7 @@
 package domain
 
 type Status struct {
-	Recipient          Chat
-	Sender             User
+	MetaData           MessageMetadata
 	DidSucceed         bool
 	AdditionnalDetails string
 }

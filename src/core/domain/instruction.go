@@ -8,9 +8,7 @@ const (
 )
 
 type Instruction struct {
-	Date        int64
-	Recipient   Chat
-	User        User
+	Metadata    MessageMetadata
 	Instruction InstructionType
 	Parameter   int
 }

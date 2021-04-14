@@ -4,14 +4,14 @@ import "adinunno.fr/twitter-to-telegram/src/core/domain"
 
 type StatusRepo interface {
 	SaveStatus(status *domain.Status)
-	GetStatus(status *domain.Status) *domain.Status //TODO: replace parameter
+	GetStatus(status *domain.MessageMetadata) *domain.Status
 }
 
 type InstructionRepo interface {
 	CreateInstruction(instruction *domain.Instruction)
-	GetInstruction(instruction *domain.Instruction) *domain.Instruction //TODO: replace parameter with struct that only takes chat and user
-	HasStopInstruction(instruction *domain.Instruction) bool
-	HasLimitInstruction(instruction *domain.Instruction) int
+	GetInstruction(instruction *domain.MessageMetadata) *domain.Instruction
+	HasStopInstruction(instruction *domain.MessageMetadata) bool
+	HasLimitInstruction(instruction *domain.MessageMetadata) int
 }
 
 type interactor struct {

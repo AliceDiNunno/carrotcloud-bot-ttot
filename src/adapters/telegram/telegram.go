@@ -1,7 +1,7 @@
 package telegram
 
 import (
-	"adinunno.fr/twitter-to-telegram/src/infra"
+	"adinunno.fr/twitter-to-telegram/src/config"
 	"gopkg.in/tucnak/telebot.v2"
 	"log"
 	"strings"
@@ -20,7 +20,7 @@ func shouldUpdate(newMessage *telebot.Update) bool {
 	return true
 }
 
-func NewTelegramBot(conf infra.TelegramConf) *telebot.Bot {
+func NewTelegramBot(conf config.TelegramConf) *telebot.Bot {
 	bot, err := telebot.NewBot(telebot.Settings{
 		Token: conf.BotToken,
 		URL:   "https://api.telegram.org",

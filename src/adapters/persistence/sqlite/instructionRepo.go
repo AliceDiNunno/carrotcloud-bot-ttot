@@ -11,6 +11,7 @@ type InstructionRepo struct {
 
 type Instruction struct {
 	gorm.Model
+
 	Date                 int64
 	SenderId             int
 	GroupId              int64
@@ -24,19 +25,18 @@ func (s InstructionRepo) CreateInstruction(instruction *domain.Instruction) {
 	s.Db.Create(&request)
 }
 
-func (s InstructionRepo) GetInstruction(instruction *domain.Instruction) *domain.Instruction {
-	request := instructionFromDomain(instruction)
+func (s InstructionRepo) GetInstruction(instruction *domain.MessageMetadata) *domain.Instruction {
 	var response Instruction
 
-	s.Db.Where("sender_id = ? AND group_id = ? AND date BETWEEN ? AND ?", request.SenderId, request.GroupId, instruction.Date-10, instruction.Date+10).First(&response)
+	s.Db.Where("sender_id = ? AND group_id = ? AND date BETWEEN ? AND ?", instruction.Sender, instruction.Conversation, instruction.SentDate-10, instruction.SentDate+10).First(&response)
 	return instructionToDomain(&response)
 }
 
-func (s InstructionRepo) HasStopInstruction(instruction *domain.Instruction) bool {
+func (s InstructionRepo) HasStopInstruction(instruction *domain.MessageMetadata) bool {
 	return s.GetInstruction(instruction).Instruction == domain.StopInstruction
 }
 
-func (s InstructionRepo) HasLimitInstruction(instruction *domain.Instruction) int {
+func (s InstructionRepo) HasLimitInstruction(instruction *domain.MessageMetadata) int {
 	limitInstruction := s.GetInstruction(instruction)
 	if limitInstruction.Instruction == domain.LimitInstruction {
 		return limitInstruction.Parameter
@@ -46,9 +46,9 @@ func (s InstructionRepo) HasLimitInstruction(instruction *domain.Instruction) in
 
 func instructionFromDomain(instruction *domain.Instruction) *Instruction {
 	return &Instruction{
-		Date:                 instruction.Date,
-		SenderId:             int(instruction.User),
-		GroupId:              int64(instruction.Recipient),
+		Date:                 int64(instruction.Metadata.SentDate),
+		SenderId:             int(instruction.Metadata.Sender),
+		GroupId:              int64(instruction.Metadata.Conversation),
 		Instruction:          string(instruction.Instruction),
 		InstructionParameter: instruction.Parameter,
 	}
@@ -56,9 +56,13 @@ func instructionFromDomain(instruction *domain.Instruction) *Instruction {
 
 func instructionToDomain(instruction *Instruction) *domain.Instruction {
 	return &domain.Instruction{
-		Date:        instruction.Date,
-		Recipient:   domain.Chat(instruction.GroupId),
-		User:        domain.User(instruction.SenderId),
+		Metadata: domain.MessageMetadata{
+			Id:           0,
+			Conversation: domain.Chat(instruction.GroupId),
+			Sender:       domain.User(instruction.SenderId),
+			SentDate:     domain.Date(instruction.Date),
+		},
+
 		Instruction: domain.InstructionType(instruction.Instruction),
 		Parameter:   instruction.InstructionParameter,
 	}

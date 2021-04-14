@@ -23,18 +23,17 @@ func (s StatusRepo) SaveStatus(status *domain.Status) {
 	s.Db.Create(&request)
 }
 
-func (s StatusRepo) GetStatus(status *domain.Status) *domain.Status {
-	request := statusFromDomain(status)
+func (s StatusRepo) GetStatus(status *domain.MessageMetadata) *domain.Status {
 	var response Status
 
-	s.Db.Where("chat_id = ? AND message_id = ?", request.ChatId, request.MessageId).First(&response)
+	s.Db.Where("chat_id = ? AND message_id = ?", status.Conversation, status.Id).First(&response)
 	return statusToDomain(&response)
 }
 
 func statusFromDomain(status *domain.Status) Status {
 	return Status{
-		ChatId:       int64(status.Recipient),
-		MessageId:    int(status.Sender),
+		ChatId:       int64(status.MetaData.Conversation),
+		MessageId:    int(status.MetaData.Id),
 		FetchSuccess: status.DidSucceed,
 		Details:      status.AdditionnalDetails,
 	}
@@ -42,8 +41,13 @@ func statusFromDomain(status *domain.Status) Status {
 
 func statusToDomain(status *Status) *domain.Status {
 	return &domain.Status{
-		Recipient:          domain.Chat(status.ChatId),
-		Sender:             domain.User(status.MessageId),
+		MetaData: domain.MessageMetadata{
+			Id:           domain.ID(status.MessageId),
+			Conversation: domain.Chat(status.ChatId),
+			Sender:       0,
+			SentDate:     0,
+		},
+
 		DidSucceed:         status.FetchSuccess,
 		AdditionnalDetails: status.Details,
 	}

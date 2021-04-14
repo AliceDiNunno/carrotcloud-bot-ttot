@@ -8,7 +8,7 @@ import (
 func (r RoutesHandler) reply(messages domain.MessageList) {
 	for _, message := range messages {
 		r.bot.Send(&telebot.Chat{
-			ID: int64(message.Recipient),
+			ID: int64(message.Metadata.Conversation),
 		}, message.Text)
 	}
 }

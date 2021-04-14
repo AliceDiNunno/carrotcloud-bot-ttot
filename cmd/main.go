@@ -4,18 +4,18 @@ import (
 	"adinunno.fr/twitter-to-telegram/src/adapters/gateway"
 	"adinunno.fr/twitter-to-telegram/src/adapters/persistence/sqlite"
 	"adinunno.fr/twitter-to-telegram/src/adapters/telegram"
+	"adinunno.fr/twitter-to-telegram/src/config"
 	"adinunno.fr/twitter-to-telegram/src/core/usecases"
-	"adinunno.fr/twitter-to-telegram/src/infra"
 	"log"
 )
 
 func main() {
-	infra.LoadEnv()
+	config.LoadEnv()
 
 	db := sqlite.CreateDB()
 
-	twitterConf := infra.LoadTwitterConfiguration()
-	telegramConf := infra.LoadTelegramConfiguration()
+	twitterConf := config.LoadTwitterConfiguration()
+	telegramConf := config.LoadTelegramConfiguration()
 
 	var statusRepo usecases.StatusRepo
 	var instructionRepo usecases.InstructionRepo

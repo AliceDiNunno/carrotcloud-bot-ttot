@@ -6,10 +6,10 @@ import (
 )
 
 func (i interactor) NewMessageReceived(date int64, chat domain.Chat, sender domain.User, id domain.TweetId) (domain.MessageList, error) {
-	if (i.instructionRepo.HasStopInstruction(&domain.Instruction{
-		Date:      date,
-		Recipient: chat,
-		User:      sender,
+	if (i.instructionRepo.HasStopInstruction(&domain.MessageMetadata{
+		SentDate:     domain.Date(date),
+		Conversation: chat,
+		Sender:       sender,
 	})) {
 		return nil, errors.New("user has aborted the process using /stop")
 	}
@@ -37,10 +37,10 @@ func (i interactor) NewMessageReceived(date int64, chat domain.Chat, sender doma
 		return nil, errors.New("no thread has been found")
 	}
 
-	limit := i.instructionRepo.HasLimitInstruction(&domain.Instruction{
-		Date:      date,
-		Recipient: chat,
-		User:      sender,
+	limit := i.instructionRepo.HasLimitInstruction(&domain.MessageMetadata{
+		SentDate:     domain.Date(date),
+		Conversation: chat,
+		Sender:       sender,
 	})
 
 	var messages domain.MessageList
@@ -49,29 +49,36 @@ func (i interactor) NewMessageReceived(date int64, chat domain.Chat, sender doma
 			break
 		}
 		messages = append(messages, &domain.Message{
-			Recipient: chat,
-			Text:      tweet.Message,
+			Metadata: domain.MessageMetadata{
+				Conversation: chat,
+			},
+
+			Text: tweet.Message,
 		})
 	}
 
 	return messages, nil
 }
 
-func (i interactor) FindTweetStatus(status domain.Status) (*domain.Message, error) {
+func (i interactor) FindTweetStatus(status domain.MessageMetadata) (*domain.Message, error) {
 	dbstatus := i.statusRepo.GetStatus(&status)
 
 	//TODO: this is the values returned when no entry was found. UPDATE to gorm2 required and fetch errors
-	if dbstatus.Recipient == 0 && dbstatus.Sender == 0 {
+	if dbstatus.MetaData.Conversation == 0 && dbstatus.MetaData.Sender == 0 {
 		return &domain.Message{
-			Recipient: status.Recipient,
-			Text:      "this tweet is not in my database #sadface",
+			Metadata: domain.MessageMetadata{
+				Conversation: status.Conversation,
+			},
+			Text: "this tweet is not in my database #sadface",
 		}, nil
 	}
 
 	if dbstatus != nil {
 		return &domain.Message{
-			Recipient: status.Recipient,
-			Text:      dbstatus.AdditionnalDetails,
+			Metadata: domain.MessageMetadata{
+				Conversation: status.Conversation,
+			},
+			Text: dbstatus.AdditionnalDetails,
 		}, nil
 	}
 
