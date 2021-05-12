@@ -20,8 +20,9 @@ func (r RoutesHandler) handle(bot *telebot.Bot, endpoint string, handler endpoin
 
 		r.usecases.RegisterThreadStatus(&domain.Status{
 			MetaData: domain.MessageMetadata{
+				Id:           domain.ID(message.ID),
 				Conversation: domain.Chat(message.Chat.ID),
-				Sender:       domain.User(message.ID),
+				Sender:       domain.User(message.Sender.ID),
 			},
 			DidSucceed:         err != nil,
 			AdditionnalDetails: details,
