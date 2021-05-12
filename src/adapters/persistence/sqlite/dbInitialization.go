@@ -1,14 +1,16 @@
 package sqlite
 
 import (
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+
 	"log"
 )
 
 func CreateDB() *gorm.DB {
 	//TODO: move this to configuration
-	db, err := gorm.Open("sqlite3", "./TTOT.db")
+	db, err := gorm.Open(sqlite.Open("./TTOT.db"), &gorm.Config{})
 
 	if err != nil {
 		log.Fatal("Unable to open database: " + err.Error() + "\n")

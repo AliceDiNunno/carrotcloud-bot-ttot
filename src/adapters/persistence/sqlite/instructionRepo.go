@@ -2,7 +2,7 @@ package sqlite
 
 import (
 	"adinunno.fr/twitter-to-telegram/src/core/domain"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type InstructionRepo struct {
