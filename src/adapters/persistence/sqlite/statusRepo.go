@@ -2,7 +2,6 @@ package sqlite
 
 import (
 	"adinunno.fr/twitter-to-telegram/src/core/domain"
-	"github.com/davecgh/go-spew/spew"
 	"gorm.io/gorm"
 )
 
